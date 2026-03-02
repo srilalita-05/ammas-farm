@@ -1,20 +1,24 @@
 import axios from 'axios';
 
-const API_BASE = '/api';
+// In production this will be https://your-backend.onrender.com
+// In development the Vite proxy handles /api → localhost:8000
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach token to every request
+// Attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Auto-refresh token on 401
+// Auto-refresh expired tokens
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -38,43 +42,43 @@ api.interceptors.response.use(
   }
 );
 
-// ── Auth ──────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────────────────────────────
 export const authAPI = {
-  register: (data) => api.post('/auth/register/', data),
-  login: (data) => api.post('/auth/login/', data),
-  logout: (refresh) => api.post('/auth/logout/', { refresh }),
-  getProfile: () => api.get('/auth/profile/'),
-  updateProfile: (data) => api.patch('/auth/profile/', data),
+  register:      (data)    => api.post('/auth/register/', data),
+  login:         (data)    => api.post('/auth/login/', data),
+  logout:        (refresh) => api.post('/auth/logout/', { refresh }),
+  getProfile:    ()        => api.get('/auth/profile/'),
+  updateProfile: (data)    => api.patch('/auth/profile/', data),
 };
 
-// ── Products ──────────────────────────────────────────
+// ── Products ──────────────────────────────────────────────────────────────────
 export const productAPI = {
-  getAll: (params) => api.get('/products/', { params }),
-  getOne: (id) => api.get(`/products/${id}/`),
-  // Admin
-  adminGetAll: (params) => api.get('/products/admin/', { params }),
-  create: (data) => api.post('/products/admin/', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
-  update: (id, data) => api.patch(`/products/admin/${id}/`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  getAll:       (params) => api.get('/products/', { params }),
+  getOne:       (id)     => api.get(`/products/${id}/`),
+  adminGetAll:  (params) => api.get('/products/admin/', { params }),
+  getDashboard: ()       => api.get('/products/admin/dashboard/stats/'),
+  create: (data) =>
+    api.post('/products/admin/', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id, data) =>
+    api.patch(`/products/admin/${id}/`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id) => api.delete(`/products/admin/${id}/`),
-  getDashboard: () => api.get('/products/admin/dashboard/stats/'),
 };
 
-// ── Cart ──────────────────────────────────────────────
+// ── Cart ──────────────────────────────────────────────────────────────────────
 export const cartAPI = {
-  get: () => api.get('/cart/'),
-  add: (product_id, quantity) => api.post('/cart/add/', { product_id, quantity }),
-  update: (id, quantity) => api.patch(`/cart/item/${id}/`, { quantity }),
-  remove: (id) => api.delete(`/cart/item/${id}/`),
-  clear: () => api.delete('/cart/clear/'),
+  get:    ()               => api.get('/cart/'),
+  add:    (product_id, quantity) => api.post('/cart/add/', { product_id, quantity }),
+  update: (id, quantity)   => api.patch(`/cart/item/${id}/`, { quantity }),
+  remove: (id)             => api.delete(`/cart/item/${id}/`),
+  clear:  ()               => api.delete('/cart/clear/'),
 };
 
-// ── Orders ────────────────────────────────────────────
+// ── Orders ────────────────────────────────────────────────────────────────────
 export const orderAPI = {
-  create: (data) => api.post('/orders/create/', data),
-  getMyOrders: () => api.get('/orders/my-orders/'),
-  getMyOrder: (id) => api.get(`/orders/my-orders/${id}/`),
-  // Admin
-  adminGetAll: (params) => api.get('/orders/admin/', { params }),
+  create:       (data)   => api.post('/orders/create/', data),
+  getMyOrders:  ()       => api.get('/orders/my-orders/'),
+  getMyOrder:   (id)     => api.get(`/orders/my-orders/${id}/`),
+  adminGetAll:  (params) => api.get('/orders/admin/', { params }),
   updateStatus: (id, order_status) => api.put(`/orders/admin/${id}/status/`, { order_status }),
 };
 
