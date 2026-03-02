@@ -8,7 +8,7 @@ A full-stack web application that allows a local farmer (admin) to sell agricult
 ## 🏗️ Project Structure
 
 ```
-farmer-platform/
+ammas-farm/
 ├── backend/                    # Django REST API
 │   ├── farmer_backend/         # Main Django settings & URLs
 │   ├── accounts/               # User authentication (JWT)
