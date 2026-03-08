@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🌾 Amma's Farm — Local Farmer Direct-to-Customer E-Commerce Platform
 
 A full-stack web application that allows a local farmer (admin) to sell agricultural products directly to customers.
